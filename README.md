@@ -1,388 +1,307 @@
-# 🎓 Damn Vulnerable University (DVU)
-
-**An intentionally vulnerable web application for security testing and education**
+# 🎓 Damn Vulnerable Web University
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black.svg)](https://vercel.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-Live-000000?logo=vercel&logoColor=white)](https://ist-edu-bd.vercel.app)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
 
-> ⚠️ **WARNING**: This application contains deliberate security vulnerabilities. **DO NOT** deploy in production or expose to untrusted networks!
+> **⚠️ SECURITY WARNING**: This is an intentionally vulnerable web application for educational and authorized security testing purposes only. **DO NOT** deploy in production environments or expose to untrusted networks.
 
----
-
-## 📋 Table of Contents
-
-- [About](#about)
-- [Live Demo](#live-demo)
-- [Vulnerabilities](#vulnerabilities)
-- [Technology Stack](#technology-stack)
-- [Quick Start](#quick-start)
-- [Docker Deployment](#docker-deployment)
-- [Local Development](#local-development)
-- [API Endpoints](#api-endpoints)
-- [Testing Guide](#testing-guide)
-- [Security Disclaimer](#security-disclaimer)
-- [License](#license)
+**Live Demo**: [https://ist-edu-bd.vercel.app](https://ist-edu-bd.vercel.app)
 
 ---
 
-## 🎯 About
+## 📖 Overview
 
-**Damn Vulnerable University (DVU)** is a modern, intentionally vulnerable web application designed for:
+An educational web application deliberately designed with **OWASP Top 10** vulnerabilities for:
 
-- 🔍 **Security Testing**: Practice vulnerability scanning and penetration testing
-- 📚 **Education**: Learn about common web vulnerabilities (OWASP Top 10)
-- 🛠️ **Tool Development**: Test and develop security scanning tools
-- 🎓 **Training**: Hands-on cybersecurity training for students and professionals
+- 🎯 **Security Testing** - Practice penetration testing and vulnerability assessment
+- 📚 **Cybersecurity Education** - Learn real-world web application vulnerabilities
+- 🔬 **Scanner Development** - Test and validate security scanning tools
+- 💼 **Professional Training** - Hands-on security training for developers and pentesters
 
-DVU simulates a university website with realistic features and common vulnerabilities found in real-world applications.
-
----
-
-## 🌐 Live Demo
-
-**URL**: [https://ist-edu-bd.vercel.app](https://ist-edu-bd.vercel.app)
-
-The application is deployed on Vercel and accessible for testing. All vulnerabilities are functional and can be exploited via the web interface or API endpoints.
+Built with modern web technologies (React + Vite) and realistic university website features to simulate production-like environments.
 
 ---
 
-## 🐛 Vulnerabilities
+## 🚀 Quick Start (Docker - Recommended)
 
-DVU implements **7 major vulnerability types** across **GET and POST** request methods:
+**Prerequisites**: Docker and Docker Compose installed ([Get Docker](https://docs.docker.com/get-docker/))
 
-| # | Vulnerability | Endpoint | Method | Severity | OWASP |
-|---|--------------|----------|--------|----------|-------|
-| 1 | **XSS (Reflected)** | `/api/comments?comment=` | GET | High | A07:2021 |
-| 2 | **XSS (Stored)** | `/api/comments` | POST | Critical | A07:2021 |
-| 3 | **SQL Injection (Search)** | `/api/search?q=` | GET | High | A03:2021 |
-| 4 | **SQL Injection (Login)** | `/api/portal` | POST | Critical | A03:2021 |
-| 5 | **CRLF Injection** | `/api/newsletter` | POST | Medium | A03:2021 |
-| 6 | **LFI (Path Traversal)** | `/api/notices?file=` | GET | High | A01:2021 |
-| 7 | **Open Redirect** | `/api/redirect?url=` | GET | Medium | A01:2021 |
-
-### Attack Vector Distribution
-- **GET-based**: 4 vulnerabilities (XSS reflected, LFI, Open Redirect, SQLi search)
-- **POST-based**: 3 vulnerabilities (XSS stored, SQLi portal, CRLF)
-
-For detailed vulnerability analysis, see [`docs/VULNERABILITY_REPORT.md`](docs/VULNERABILITY_REPORT.md)
-
----
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **React 18** - UI framework
-- **Vite** - Build tool and dev server
-- **React Router v6** - Client-side routing
-- **Axios** - HTTP client
-- **Custom CSS** - Styling (no frameworks)
-
-### Backend
-- **Vercel Serverless Functions** - API endpoints
-- **Node.js** - Runtime environment
-
-### Deployment
-- **Vercel** - Cloud hosting
-- **Docker** - Containerization
-- **Nginx** - Production web server
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- **Node.js** 18+ and npm
-- **Docker** (optional, for containerized deployment)
-- **Git**
-
-### Clone Repository
-```bash
-git clone https://github.com/zahidoverflow/damn-vulnerable-university.git
-cd damn-vulnerable-university
-```
-
-### Install Dependencies
-```bash
-npm install
-```
-
-### Run Development Server
-```bash
-npm run dev
-```
-
-Visit: `http://localhost:3000`
-
----
-
-## 🐳 Docker Deployment
-
-### Using Docker Compose (Recommended)
+### One-Command Setup
 
 ```bash
-# Build and start
-npm run docker:up
-
-# Or manually
+# Clone and run
+git clone https://github.com/zahidoverflow/damn-vulnerable-web-university.git
+cd damn-vulnerable-web-university
 docker compose up -d
 ```
 
-Visit: `http://localhost:3000`
+**Access**: Open [http://localhost:3000](http://localhost:3000)
 
-### Using Docker CLI
-
-```bash
-# Build image
-docker build -t damn-vulnerable-university .
-
-# Run container
-docker run -d -p 3000:80 --name dvu damn-vulnerable-university
-```
-
-### Docker Commands
+### Alternative: Pre-built Docker Image
 
 ```bash
-# View logs
-npm run docker:logs
-
-# Stop containers
-npm run docker:down
-
-# Restart
-npm run docker:restart
-
-# Rebuild
-npm run docker:build
+# Pull from Docker Hub (if available)
+docker pull zahidoverflow/dvwu:latest
+docker run -d -p 3000:80 zahidoverflow/dvwu
 ```
 
 ---
 
-## 💻 Local Development
+## 🐛 Vulnerability Catalog
 
-### Development Mode
+This application contains **7 exploitable vulnerabilities** mapped to OWASP Top 10 2021:
+
+| # | Type | Endpoint | Method | OWASP | Severity |
+|---|------|----------|--------|-------|----------|
+| 1 | **Cross-Site Scripting (Reflected)** | `/api/comments` | GET | A03:2021 | 🔴 High |
+| 2 | **Cross-Site Scripting (Stored)** | `/api/comments` | POST | A03:2021 | 🔴 Critical |
+| 3 | **SQL Injection (Authentication)** | `/api/portal` | POST | A03:2021 | 🔴 Critical |
+| 4 | **SQL Injection (Search)** | `/api/search` | GET | A03:2021 | 🔴 High |
+| 5 | **Local File Inclusion (LFI)** | `/api/notices` | GET | A01:2021 | 🟠 High |
+| 6 | **CRLF Injection** | `/api/newsletter` | POST | A03:2021 | 🟡 Medium |
+| 7 | **Open Redirect** | `/api/redirect` | GET | A01:2021 | 🟡 Medium |
+
+**📋 Full Documentation**: [Vulnerability Report](docs/VULNERABILITY_REPORT.md)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 18, Vite, React Router v6, Axios |
+| **Backend** | Vercel Serverless Functions (Node.js) |
+| **Deployment** | Docker, Nginx, Vercel |
+| **Build** | Vite (ES Modules, Fast HMR) |
+
+---
+
+## 📦 Installation Options
+
+### Option 1: Docker (Production-Ready)
+
 ```bash
+# Build and run with Docker Compose
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
+```
+
+**Includes**: Nginx web server, optimized production build, health checks
+
+### Option 2: Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server (with HMR)
 npm run dev
 ```
-- Hot reload enabled
-- Runs on `http://localhost:3000`
-- API proxy configured for `/api` routes
 
-### Build for Production
+**Development server**: `http://localhost:5173` (Vite default)
+
+### Option 3: Production Build
+
 ```bash
+# Build for production
 npm run build
-```
-- Outputs to `dist/` directory
-- Optimized and minified
 
-### Preview Production Build
-```bash
+# Preview production build
 npm run preview
 ```
 
+**Output**: `dist/` directory
+
 ---
 
-## 🔌 API Endpoints
+## 🧪 Testing Vulnerabilities
 
-All API endpoints are serverless functions deployed on Vercel. They can be tested directly or via the web interface.
+### Example Exploits
 
-### 1. XSS - Reflected (GET)
+#### 1. XSS (Reflected)
 ```bash
-GET /api/comments?comment=<script>alert(1)</script>
+curl "http://localhost:3000/api/comments?comment=<script>alert(document.domain)</script>"
 ```
 
-### 2. XSS - Stored (POST)
-```bash
-POST /api/comments
-Content-Type: application/json
-
-{
-  "comment": "<img src=x onerror=alert(document.cookie)>",
-  "author": "Attacker"
-}
-```
-
-### 3. SQL Injection - Search (GET)
-```bash
-GET /api/search?q=' OR '1'='1
-```
-
-### 4. SQL Injection - Login (POST)
-```bash
+#### 2. SQL Injection (Login Bypass)
+```http
 POST /api/portal
 Content-Type: application/json
 
 {
   "username": "admin' OR '1'='1' --",
-  "password": "anything"
+  "password": "irrelevant"
 }
 ```
 
-### 5. CRLF Injection (POST)
+#### 3. Path Traversal (LFI)
 ```bash
-POST /api/newsletter
-Content-Type: application/json
-
-{
-  "email": "test@test.com\r\nSet-Cookie: admin=true"
-}
+curl "http://localhost:3000/api/notices?file=../../../../etc/passwd"
 ```
 
-### 6. LFI - Path Traversal (GET)
+#### 4. CRLF Injection
 ```bash
-GET /api/notices?file=../../../etc/passwd
+curl -X POST http://localhost:3000/api/newsletter \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@test.com\r\nX-Injected-Header: true"}'
 ```
 
-### 7. Open Redirect (GET)
-```bash
-GET /api/redirect?url=//evil.com
-```
+### Automated Scanning
 
----
-
-## 🧪 Testing Guide
-
-### Manual Testing
-
-1. **Navigate** to the live demo or local instance
-2. **Explore** each page (Home, Portal, Search, Comments, etc.)
-3. **Test** vulnerabilities using the sample payloads provided in the UI
-4. **Observe** the vulnerable behavior (XSS execution, SQL errors, etc.)
-
-### Automated Testing
-
-Use security scanners like:
-- **OWASP ZAP**
-- **Burp Suite**
-- **Nikto**
-- **SQLMap**
-- **Custom scanners**
-
-Example with `curl`:
-```bash
-# Test XSS
-curl "https://ist-edu-bd.vercel.app/api/comments?comment=<script>alert(1)</script>"
-
-# Test SQLi
-curl "https://ist-edu-bd.vercel.app/api/search?q=' OR '1'='1"
-
-# Test LFI
-curl "https://ist-edu-bd.vercel.app/api/notices?file=../../../etc/passwd"
-```
-
-### URL Parameter Fuzzing
-
-All input fields automatically update the URL query parameters, making it easy to:
-- Copy URLs for testing
-- Share specific test cases
-- Fuzz parameters with automated tools
-
----
-
-## ⚠️ Security Disclaimer
-
-### **INTENTIONALLY VULNERABLE**
-
-This application is designed to be vulnerable for:
-- Security testing
-- Educational demonstrations
-- Scanner development
-- Penetration testing practice
-
-### **DO NOT:**
-- ❌ Deploy in production
-- ❌ Use with real data
-- ❌ Expose to untrusted networks
-- ❌ Use real credentials
-- ❌ Connect to production databases
-
-### **Legal Notice**
-
-This tool is for **authorized testing only**. Unauthorized access to computer systems is illegal. Always obtain proper authorization before testing any system.
+Compatible with popular security tools:
+- **OWASP ZAP** - Web application scanner
+- **Burp Suite** - Penetration testing toolkit
+- **SQLMap** - SQL injection automation
+- **Nikto** - Web server scanner
+- **Custom Scripts** - API-friendly for tool development
 
 ---
 
 ## 📁 Project Structure
 
 ```
-damn-vulnerable-university/
-├── api/                    # Vercel Serverless Functions
-│   ├── comments.js        # XSS (Reflected & Stored)
-│   ├── search.js          # SQL Injection (Search)
-│   ├── portal.js          # SQL Injection (Login)
-│   ├── newsletter.js      # CRLF Injection
-│   ├── notices.js         # LFI (Path Traversal)
-│   └── redirect.js        # Open Redirect
-├── src/
-│   ├── components/        # React components
-│   ├── pages/            # Page components
-│   ├── App.jsx           # Main app component
-│   └── main.jsx          # Entry point
-├── public/               # Static assets
-├── docs/                 # Documentation
+damn-vulnerable-web-university/
+│
+├── api/                      # Serverless API endpoints
+│   ├── comments.js          # XSS vulnerabilities
+│   ├── portal.js            # SQL injection (auth)
+│   ├── search.js            # SQL injection (search)
+│   ├── notices.js           # LFI/Path traversal
+│   ├── newsletter.js        # CRLF injection
+│   └── redirect.js          # Open redirect
+│
+├── src/                      # React application source
+│   ├── components/          # Reusable UI components
+│   ├── pages/              # Page components
+│   ├── App.jsx             # Root component
+│   └── main.jsx            # Entry point
+│
+├── public/                   # Static assets
+├── docs/                     # Documentation
 │   ├── VULNERABILITY_REPORT.md
-│   └── CONTEXT.md        # LLM context file
-├── Dockerfile            # Docker configuration
-├── docker-compose.yml    # Docker Compose setup
-├── nginx.conf           # Nginx configuration
-├── vercel.json          # Vercel deployment config
-└── package.json         # Dependencies
-
+│   └── CONTEXT.md
+│
+├── Dockerfile               # Multi-stage Docker build
+├── docker-compose.yml       # Docker Compose configuration
+├── nginx.conf              # Nginx server config
+├── vercel.json             # Vercel deployment
+├── vite.config.js          # Vite configuration
+└── package.json            # Dependencies & scripts
 ```
+
+---
+
+## 🔒 Security Disclaimer
+
+### ⚠️ EDUCATIONAL USE ONLY
+
+**This application is INTENTIONALLY INSECURE by design.**
+
+✅ **Authorized Uses:**
+- Security research and education
+- Penetration testing practice
+- Security tool development
+- Authorized security assessments
+
+❌ **Prohibited:**
+- Production deployment
+- Processing real user data
+- Connecting to production databases
+- Unauthorized system testing
+- Any illegal activities
+
+### 🔐 Legal Notice
+
+Unauthorized access to computer systems is **illegal** under laws including:
+- Computer Fraud and Abuse Act (CFAA) - USA
+- Computer Misuse Act - UK
+- Cybercrime laws in your jurisdiction
+
+**Always obtain written authorization** before security testing.
 
 ---
 
 ## 📚 Documentation
 
-- **[Vulnerability Report](docs/VULNERABILITY_REPORT.md)** - Detailed analysis of each vulnerability
-- **[LLM Context](docs/CONTEXT.md)** - Comprehensive project context for AI assistants
-- **[Vercel Deployment](vercel.json)** - Deployment configuration
+- **[Complete Vulnerability Analysis](docs/VULNERABILITY_REPORT.md)** - Detailed technical breakdown
+- **[Project Context](docs/CONTEXT.md)** - Architecture and implementation details
+- **[API Documentation](#testing-vulnerabilities)** - Endpoint reference and examples
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you'd like to add new vulnerabilities or improve existing ones:
+We welcome contributions! To add vulnerabilities or improve the project:
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/new-vuln`)
+3. **Commit** changes (`git commit -m 'Add XXE vulnerability'`)
+4. **Push** to branch (`git push origin feature/new-vuln`)
+5. **Open** a Pull Request
+
+**Ideas for Contributions:**
+- Additional OWASP Top 10 vulnerabilities (XXE, SSRF, Deserialization)
+- Improved documentation
+- Docker image optimization
+- Security tool integration examples
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
+
+**TL;DR**: Free to use, modify, and distribute. No warranty provided.
 
 ---
 
-## 👨‍💻 Author
+## 👥 Authors & Contributors
 
-**Zahid Hasan**
-- GitHub: [@zahidoverflow](https://github.com/zahidoverflow)
-- Project: Final Year Project - Security Scanner Development
+**Primary Author**: [zahidoverflow](https://github.com/zahidoverflow)  
+**Contributors**: [osmanfaruque](https://github.com/osmanfaruque)
+
+**Academic Context**: Developed as part of a cybersecurity research project at Institute of Science and Technology (IST).
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Inspired by **DVWA** (Damn Vulnerable Web Application)
-- Built for educational purposes at **Institute of Science and Technology (IST)**
-- OWASP Top 10 vulnerability references
+- **DVWA** (Damn Vulnerable Web Application) - Inspiration
+- **OWASP** - Vulnerability classifications and resources
+- **React & Vite** - Modern development tools
+- **Vercel** - Serverless deployment platform
 
 ---
 
-## 📞 Support
+## 💬 Support & Contact
 
-For issues, questions, or suggestions:
-- Open an [Issue](https://github.com/zahidoverflow/damn-vulnerable-university/issues)
-- Submit a [Pull Request](https://github.com/zahidoverflow/damn-vulnerable-university/pulls)
+- **Issues**: [GitHub Issues](https://github.com/zahidoverflow/damn-vulnerable-web-university/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/zahidoverflow/damn-vulnerable-web-university/discussions)
+- **Pull Requests**: [Submit PR](https://github.com/zahidoverflow/damn-vulnerable-web-university/pulls)
 
 ---
 
-**Remember**: *Ethical hacking is not a crime, it's a skill!* 🛡️
+## 🎓 Learning Resources
 
-Use this tool responsibly and always with proper authorization.
+**New to Web Security?** Check out:
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [PortSwigger Web Security Academy](https://portswigger.net/web-security)
+- [OWASP WebGoat](https://owasp.org/www-project-webgoat/)
+
+---
+
+<div align="center">
+
+**⚡ Built with React • Secured by Nothing • Vulnerable by Design ⚡**
+
+*Remember: With great power comes great responsibility. Use ethically!*
+
+</div>
 
