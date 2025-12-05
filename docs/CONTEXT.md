@@ -1,28 +1,88 @@
-# Damn Vulnerable University - LLM Context File
+# Damn Vulnerable Web University - Complete LLM Context File
 
-**Version**: 1.0  
-**Last Updated**: 2025-12-03  
-**Purpose**: Comprehensive context for AI assistants working with this codebase
+**Version**: 2.0  
+**Last Updated**: 2025-12-05  
+**Purpose**: Comprehensive context for AI assistants working with this codebase  
+**Project Type**: Intentionally Vulnerable Web Application for Security Education
+
+---
+
+## 📋 Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Project Identity & Metadata](#project-identity--metadata)
+3. [Architecture & Technology Stack](#architecture--technology-stack)
+4. [Complete File Structure](#complete-file-structure)
+5. [Vulnerability Catalog](#vulnerability-catalog)
+6. [API Endpoints Reference](#api-endpoints-reference)
+7. [React Components Architecture](#react-components-architecture)
+8. [Configuration Files](#configuration-files)
+9. [Development Workflow](#development-workflow)
+10. [Deployment & Hosting](#deployment--hosting)
+11. [Testing & Validation](#testing--validation)
+12. [Design Patterns & Conventions](#design-patterns--conventions)
+13. [Common Development Tasks](#common-development-tasks)
+14. [Troubleshooting Guide](#troubleshooting-guide)
+15. [Security & Legal Considerations](#security--legal-considerations)
 
 ---
 
 ## Project Overview
 
-### Name
-**Damn Vulnerable University (DVU)**
+### Name & Branding
+**Damn Vulnerable Web University (DVWU)**  
+*Also referred to as: Damn Vulnerable University, DVU, IST Vulnerable Web App*
 
-### Description
-An intentionally vulnerable web application designed for security testing, education, and tool development. Built as a modern React SPA with serverless API endpoints, featuring realistic vulnerabilities across GET and POST request methods.
+### Mission Statement
+An intentionally vulnerable web application designed to serve as:
+- 🎯 **Security Testing Platform** - Practice penetration testing and vulnerability assessment
+- 📚 **Educational Resource** - Learn real-world web application vulnerabilities  
+- 🔬 **Scanner Development Target** - Test and validate automated security scanning tools
+- 💼 **Professional Training** - Hands-on security training for developers and pentesters
 
-### Origin
-- Originally part of the **RaidScanner** project (security scanner tool)
-- Separated from `lab` branch into standalone repository
-- Designed to be scanned by security tools while providing educational value
+### Project Genesis
+- **Original Project**: Part of **RaidScanner** (automated vulnerability scanner) - Final Year Project
+- **Separation Date**: December 2025
+- **Original Branch**: `lab` branch of RaidScanner repository
+- **Current Status**: Standalone repository with independent development lifecycle
+- **Primary Use Case**: Target application for security scanner tools to detect vulnerabilities
 
-### Repository
-- **GitHub**: `zahidoverflow/damn-vulnerable-university`
-- **Live Demo**: https://ist-edu-bd.vercel.app
-- **Branch**: `main` (formerly `lab`)
+### Key Differentiators
+1. **Modern Tech Stack** - React 18 + Vite (not legacy PHP/MySQL)
+2. **Realistic Architecture** - Serverless functions mimicking production environments
+3. **Diverse Attack Vectors** - Both GET and POST vulnerabilities
+4. **Educational Focus** - Each vulnerability includes business impact analysis and mitigation guidance
+5. **Scanner-Friendly** - API endpoints designed for automated tool testing
+
+---
+
+## Project Identity & Metadata
+
+### Repository Information
+- **GitHub Repository**: `zahidoverflow/damn-vulnerable-web-university`
+- **Primary Branch**: `main`
+- **License**: MIT License
+- **Version**: 1.0.0
+- **Node Package Name**: `damn-vulnerable-university`
+
+### Live Deployments
+- **Production URL**: https://ist-edu-bd.vercel.app
+- **Platform**: Vercel (Automatic deployment from `main` branch)
+- **Alternative**: Can be deployed via Docker  
+
+### Project Contributors
+- **Primary Author**: Mohammad Zahidul Islam ([@zahidoverflow](https://github.com/zahidoverflow))
+- **Contributor**: Osman Faruque ([@osmanfaruque](https://github.com/osmanfaruque))
+- **Institution**: Institute of Science and Technology (IST)
+- **Academic Context**: Cybersecurity research project / Final Year Project
+
+### Related Projects
+- **RaidScanner**: Parent project - automated vulnerability scanner
+- **Conversation History**: Previously worked on LFI detection refinements, project renaming finalization
+
+---
+
+## Architecture & Technology Stack
 
 ---
 
