@@ -106,7 +106,77 @@ MAPI=1
     }
 
     // Don't show generic path traversal message - let scanner mark as safe
-    // Normal file request
-    return res.status(200).send(`Notice: ${file}
-This is a normal notice file.`)
+    // Return notice content for normal files
+    const notices = {
+        'admission-notice-2024.txt': `INSTITUTE OF SCIENCE AND TECHNOLOGY
+Admission Notice for Academic Year 2024-2025
+
+Applications are invited for admission to the following programs:
+- B.Sc. in Computer Science and Engineering
+- B.Sc. in Information Technology
+- B.Sc. in Software Engineering
+
+Eligibility: SSC & HSC with minimum GPA 3.5
+Application Deadline: December 31, 2024
+Admission Test Date: January 15, 2025
+
+For more information, visit: www.ist.edu.bd/admission
+Contact: admission@ist.edu.bd | +880-2-9876543`,
+        'exam-schedule-fall2024.txt': `INSTITUTE OF SCIENCE AND TECHNOLOGY
+Final Examination Schedule - Fall Semester 2024
+
+CS401 - Cybersecurity Fundamentals
+Date: December 10, 2024 | Time: 10:00 AM - 1:00 PM
+
+CS301 - Web Development
+Date: December 12, 2024 | Time: 2:00 PM - 5:00 PM
+
+IT202 - Database Management Systems
+Date: December 15, 2024 | Time: 10:00 AM - 1:00 PM
+
+Exam Venue: Main Examination Hall
+Students must bring their ID cards.`,
+        'scholarship-announcement.txt': `INSTITUTE OF SCIENCE AND TECHNOLOGY
+Merit-Based Scholarship Program 2024
+
+We are pleased to announce scholarships for outstanding students:
+
+Full Tuition Waiver: Top 5 students (CGPA 3.90+)
+50% Tuition Waiver: Next 10 students (CGPA 3.75+)
+25% Tuition Waiver: Next 20 students (CGPA 3.50+)
+
+Application Process:
+1. Submit academic transcripts
+2. Write a 500-word essay
+3. Provide two recommendation letters
+
+Deadline: November 30, 2024
+Contact: scholarship@ist.edu.bd`,
+        'workshop-cybersecurity.txt': `INSTITUTE OF SCIENCE AND TECHNOLOGY
+Cybersecurity Workshop 2024
+
+Topic: "Ethical Hacking and Penetration Testing"
+Speaker: Dr. Sarah Johnson, Cybersecurity Expert
+
+Date: December 5-6, 2024
+Time: 9:00 AM - 5:00 PM
+Venue: Computer Lab 3
+
+Topics Covered:
+- Web Application Security
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Security Testing Tools
+
+Registration: Free for IST students
+Limited seats available!
+Register at: events@ist.edu.bd`
+    }
+
+    if (notices[file]) {
+        res.setHeader('Content-Type', 'text/plain')
+        return res.status(200).send(notices[file])
+    }
+
+    return res.status(200).send(`File not found: ${file}`)
 }

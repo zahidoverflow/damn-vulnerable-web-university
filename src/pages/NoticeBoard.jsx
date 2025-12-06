@@ -100,60 +100,24 @@ Register at: events@ist.edu.bd`,
     }
   }, [fileParam])
 
-  const handleFileLoad = (filename) => {
+  const handleFileLoad = async (filename) => {
     setError('')
     setFileContent('')
     setLoading(true)
     setSelectedFile(filename)
 
-    // Simulate loading delay
-    setTimeout(() => {
-      // VULNERABLE: Path traversal detection
-      if (filename.includes('../') || filename.includes('..\\\\') ||
-        filename.includes('%2e%2e%2f') || filename.includes('%2e%2e%5c')) {
-
-        // Simulate LFI vulnerability - matches scanner payloads
-        if (filename.includes('/etc/passwd') || filename.includes('\\\\windows\\\\system32')) {
-          setError(`🔓 LFI VULNERABILITY DETECTED!
-          
-Path Traversal Attempt: ${filename}
-
-This would expose sensitive system files in a real application!
-
-Simulated /etc/passwd content:
-root:x:0:0:root:/root:/bin/bash
-daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
-www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
-mysql:x:105:108:MySQL Server:/var/lib/mysql:/bin/false
-
-⚠️ In a real scenario, this could lead to:
-- System file disclosure
-- Configuration file access
-- Credential exposure
-- Full system compromise`)
-        } else {
-          setError(`⚠️ Path Traversal Detected!
-
-Attempted to access: ${filename}
-
-This application is vulnerable to Local File Inclusion (LFI).
-An attacker could potentially access sensitive files outside the intended directory.
-
-Common LFI payloads that work:
-- ../../../etc/passwd
-- ..\\\\..\\\\..\\\\windows\\\\system32\\\\config\\\\sam
-- ....//....//....//etc/passwd`)
-        }
-      } else if (notices[filename]) {
-        setFileContent(notices[filename].content)
-      } else {
-        setError(`File not found: ${filename}
-
-Available files:
-${Object.keys(notices).join('\\n')}`)
-      }
+    try {
+      // Call the actual API endpoint (VULNERABLE to LFI)
+      const response = await fetch(`/api/notices?file=${encodeURIComponent(filename)}`)
+      const content = await response.text()
+      
+      // Display the raw response from API
+      setFileContent(content)
+    } catch (err) {
+      setError(`Error loading file: ${err.message}`)
+    } finally {
       setLoading(false)
-    }, 300)
+    }
   }
 
   return (
@@ -208,15 +172,15 @@ ${Object.keys(notices).join('\\n')}`)
             {fileContent && !error && !loading && (
               <div className="notice-display">
                 <div className="notice-header">
-                  <h2>{notices[selectedFile]?.title}</h2>
-                  <span className="notice-date">📅 {notices[selectedFile]?.date}</span>
+                  <h2>📄 File Content</h2>
+                  <span className="notice-date">File: {selectedFile}</span>
                 </div>
                 <div className="notice-body">
-                  <pre>{fileContent}</pre>
+                  <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>{fileContent}</pre>
                 </div>
                 <div className="notice-footer">
-                  <p><strong>File:</strong> <code>{selectedFile}</code></p>
-                  <p><strong>URL:</strong> <code>/notices?file={selectedFile}</code></p>
+                  <p><strong>Requested File:</strong> <code>{selectedFile}</code></p>
+                  <p><strong>API Endpoint:</strong> <code>/api/notices?file={selectedFile}</code></p>
                 </div>
               </div>
             )}
