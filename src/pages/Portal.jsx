@@ -98,52 +98,152 @@ function Portal() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h1>Login Portal</h1>
-      <p style={{ marginBottom: '2rem' }}>Access your student dashboard and university resources.</p>
-
-      {error && <div className="error">{error}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="student_id">Email</label>
-          <input
-            type="text"
-            id="student_id"
-            value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
-            placeholder="20050@ist.edu.bd"
-            required
-          />
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '70vh',
+      padding: '2rem'
+    }}>
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '420px',
+        background: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+        overflow: 'hidden'
+      }}>
+        {/* Header */}
+        <div style={{ 
+          background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+          padding: '2rem',
+          textAlign: 'center',
+          color: 'white'
+        }}>
+          <div style={{ 
+            width: '70px', 
+            height: '70px', 
+            background: 'white', 
+            borderRadius: '50%', 
+            margin: '0 auto 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '2rem'
+          }}>
+            🎓
+          </div>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>Student Portal</h1>
+          <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '0.9rem' }}>Institute of Science and Technology</p>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
+        {/* Form */}
+        <div style={{ padding: '2rem' }}>
+          {error && (
+            <div style={{ 
+              background: '#fee', 
+              color: '#c00', 
+              padding: '0.75rem 1rem', 
+              borderRadius: '8px', 
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem',
+              border: '1px solid #fcc'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#333',
+                fontSize: '0.9rem'
+              }}>
+                Email Address
+              </label>
+              <input
+                type="text"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                placeholder="Enter your email"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.875rem 1rem',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '10px',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#333',
+                fontSize: '0.9rem'
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.875rem 1rem',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '10px',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '0.875rem',
+                background: loading ? '#999' : 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                boxShadow: '0 4px 15px rgba(231, 76, 60, 0.3)'
+              }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div style={{ 
+            marginTop: '1.5rem', 
+            textAlign: 'center',
+            fontSize: '0.85rem',
+            color: '#888'
+          }}>
+            <a href="#" style={{ color: '#e74c3c', textDecoration: 'none' }}>Forgot Password?</a>
+            <span style={{ margin: '0 0.5rem' }}>•</span>
+            <a href="#" style={{ color: '#e74c3c', textDecoration: 'none' }}>Need Help?</a>
+          </div>
         </div>
-
-        <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-
-      <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.9rem', color: '#666' }}>
-          For testing: <br />
-          <code>Email: 20050@ist.edu.bd</code><br />
-          <code>Password: password123</code>
-        </p>
-      </div>
-
-      <div className="vuln-hint">
-        ⚠️ <strong>Vulnerability:</strong> This form is vulnerable to SQL injection. Try: <code>' OR '1'='1' --</code>
       </div>
     </div>
   )
