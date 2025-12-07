@@ -43,7 +43,7 @@ function Header() {
                   <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
                   <li><Link to="/courses" onClick={() => setMenuOpen(false)}>Academics</Link></li>
                   <li><Link to="/notices" onClick={() => setMenuOpen(false)}>Notice Board</Link></li>
-                  <li><Link to="/portal" onClick={() => setMenuOpen(false)}>Student Portal</Link></li>
+                  <li><Link to="/portal" onClick={() => setMenuOpen(false)}>Login Portal</Link></li>
                   <li><Link to="/search" onClick={() => setMenuOpen(false)}>Search</Link></li>
                   <li><Link to="/comments" onClick={() => setMenuOpen(false)}>Comments</Link></li>
                   <li><Link to="/redirect" onClick={() => setMenuOpen(false)}>Redirector</Link></li>

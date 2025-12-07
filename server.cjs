@@ -110,6 +110,9 @@ app.all('/api/portal', (req, res) => {
         username.toLowerCase().includes("or 1=1") ||
         (username.includes('admin') && username.includes("'"));
 
+    // Valid test credentials
+    const isValidCredentials = (username === '20050@ist.edu.bd' && password === 'password123');
+
     if (hasSQLi) {
         return res.status(200).send(`
 <!DOCTYPE html>
@@ -126,6 +129,18 @@ app.all('/api/portal', (req, res) => {
     <li>Username: admin</li>
     <li>Role: Administrator</li>
   </ul>
+</body>
+</html>`);
+    }
+
+    if (isValidCredentials) {
+        return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head><title>Login Successful</title></head>
+<body>
+  <h1>Welcome, RAKIB MD OSMAN FARUQUE!</h1>
+  <p>Login successful</p>
 </body>
 </html>`);
     }

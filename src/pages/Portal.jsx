@@ -60,12 +60,26 @@ function Portal() {
         localStorage.setItem('student', JSON.stringify(studentData))
         navigate('/dashboard')
       } else if (response.status === 200 && !html.includes('Login Failed')) {
-        // Valid credentials
-        const studentData = {
-          name: 'John Doe',
+        // Valid credentials - check for specific test account
+        const isTestAccount = studentId === '20050@ist.edu.bd' && password === 'password123'
+        
+        const studentData = isTestAccount ? {
+          name: 'RAKIB MD OSMAN FARUQUE',
+          student_id: '20050',
+          email: '20050@ist.edu.bd',
+          department: 'Computer Science and Engineering',
+          role: 'Student',
+          batch: '19-20',
+          semester: '8th Semester',
+          cgpa: '2.10',
+          credits_completed: 120,
+          supervisor: 'Ditee Yasmeen',
+          coordinator: 'Tasmi Sultana'
+        } : {
+          name: studentId,
           student_id: studentId,
-          email: 'john.doe@ist.edu',
-          department: 'Computer Science',
+          email: studentId,
+          department: 'Unknown',
           role: 'Student'
         }
 
@@ -85,20 +99,20 @@ function Portal() {
 
   return (
     <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h1>Student Portal Login</h1>
+      <h1>Login Portal</h1>
       <p style={{ marginBottom: '2rem' }}>Access your student dashboard and university resources.</p>
 
       {error && <div className="error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="student_id">Student ID</label>
+          <label htmlFor="student_id">Email</label>
           <input
             type="text"
             id="student_id"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
-            placeholder="IST2021001"
+            placeholder="20050@ist.edu.bd"
             required
           />
         </div>
@@ -123,7 +137,7 @@ function Portal() {
       <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd', textAlign: 'center' }}>
         <p style={{ fontSize: '0.9rem', color: '#666' }}>
           For testing: <br />
-          <code>Student ID: IST2021001</code><br />
+          <code>Email: 20050@ist.edu.bd</code><br />
           <code>Password: password123</code>
         </p>
       </div>

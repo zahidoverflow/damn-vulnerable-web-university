@@ -45,6 +45,9 @@ export default function handler(req, res) {
     username.toLowerCase().includes("or 1=1") ||
     username.includes('admin') && username.includes("'")
 
+  // Valid test credentials
+  const isValidCredentials = (username === '20050@ist.edu.bd' && password === 'password123')
+
   if (hasSQLi) {
     // Authentication bypass successful!
     return res.status(200).send(`
@@ -75,6 +78,20 @@ SELECT * FROM users WHERE username='${username}' AND password='${password}'
       <strong>Security Warning:</strong> SQL Injection vulnerability allows authentication bypass!
     </p>
   </div>
+</body>
+</html>
+    `)
+  }
+
+  if (isValidCredentials) {
+    // Valid login
+    return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head><title>Login Successful</title></head>
+<body>
+  <h1>Welcome, RAKIB MD OSMAN FARUQUE!</h1>
+  <p>Login successful</p>
 </body>
 </html>
     `)
