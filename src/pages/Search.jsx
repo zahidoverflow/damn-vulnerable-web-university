@@ -6,7 +6,7 @@ function Search() {
   const initialQuery = searchParams.get('q') || ''
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState([])
-  const [error, setError] = useState('')
+  const [xssResult, setXssResult] = useState('')
 
   const allCourses = [
     { id: 1, code: 'CS101', name: 'Introduction to Programming', instructor: 'Dr. Robert Brown', credits: 3 },
@@ -14,6 +14,13 @@ function Search() {
     { id: 3, code: 'CS301', name: 'Web Development', instructor: 'Dr. Michael Chen', credits: 3 },
     { id: 4, code: 'CS401', name: 'Cybersecurity Fundamentals', instructor: 'Prof. Sarah Johnson', credits: 4 },
     { id: 5, code: 'IT202', name: 'Database Management Systems', instructor: 'Dr. James Wilson', credits: 3 }
+  ]
+
+  // Allowed XSS payloads (only these 3 will work)
+  const allowedXSSPayloads = [
+    "<script>'alert(1)'.replace(/.+/,eval)</script>",
+    "<object data=javascript:alert(1)>",
+    "<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?"
   ]
 
   // Update results when URL param changes
@@ -26,13 +33,19 @@ function Search() {
   }, [searchParams])
 
   const performSearch = (searchQuery) => {
-    setError('')
+    setXssResult('')
 
-    // VULNERABLE: Simulating SQL injection in search
-    if (searchQuery.includes("'") || searchQuery.includes("UNION") || searchQuery.includes("--")) {
-      setError(`Database Error: Syntax error near '${searchQuery}'. This might indicate a SQL injection attempt!`)
+    // Check if it's one of the allowed XSS payloads
+    const isAllowedXSS = allowedXSSPayloads.some(payload => 
+      searchQuery.includes(payload) || payload.includes(searchQuery)
+    )
+
+    if (isAllowedXSS) {
+      // VULNERABLE: Render the XSS payload
+      setXssResult(searchQuery)
       setResults([])
     } else {
+      // Normal search - filter courses
       const filtered = allCourses.filter(course =>
         course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.code.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,17 +71,24 @@ function Search() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by course name or code..."
-              style={{ fontSize: '1.1rem' }}
+              style={{ 
+                fontSize: '1.1rem',
+                width: '100%',
+                maxWidth: '800px',
+                padding: '1rem 1.25rem',
+                boxSizing: 'border-box'
+              }}
             />
           </div>
           <button type="submit" className="btn">Search</button>
         </form>
 
-        {error && (
-          <div className="error" style={{ marginTop: '1rem' }}>
-            <strong>Database Error:</strong> {error}
-            <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>This might indicate a SQL injection attempt!</p>
-          </div>
+        {/* VULNERABLE: XSS output - renders HTML without sanitization */}
+        {xssResult && (
+          <div 
+            style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}
+            dangerouslySetInnerHTML={{ __html: `<p>Search results for: ${xssResult}</p>` }}
+          />
         )}
       </div>
 
@@ -86,15 +106,11 @@ function Search() {
         </div>
       )}
 
-      {query && results.length === 0 && !error && (
+      {query && results.length === 0 && !xssResult && (
         <div className="card">
           <p>No results found for "{query}"</p>
         </div>
       )}
-
-      <div className="vuln-hint">
-        ⚠️ <strong>Vulnerability:</strong> This search is vulnerable to SQL injection. Try: <code>' UNION SELECT 1,2,3,4,5 --</code>
-      </div>
     </>
   )
 }

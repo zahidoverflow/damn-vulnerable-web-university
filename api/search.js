@@ -1,4 +1,4 @@
-// API endpoint for SQL Injection vulnerability testing
+// API endpoint for XSS vulnerability testing
 // This allows CLI scanners to detect the vulnerability
 
 export default function handler(req, res) {
@@ -32,71 +32,57 @@ export default function handler(req, res) {
     `)
     }
 
-    // VULNERABLE: SQL Injection detection
-    const hasSQLi = query.includes("'") ||
-        query.includes('"') ||
-        query.includes('--') ||
-        query.includes('OR') ||
-        query.includes('UNION') ||
-        query.includes('SELECT') ||
-        query.includes('1=1') ||
-        query.includes('DROP') ||
-        query.includes('/*') ||
-        query.includes('*/') ||
-        query.includes(';')
+    // Allowed XSS payloads (only these 3 will trigger XSS)
+    const allowedXSSPayloads = [
+        "<script>'alert(1)'.replace(/.+/,eval)</script>",
+        "<object data=javascript:alert(1)>",
+        "<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?"
+    ]
 
-    if (hasSQLi) {
-        // Return SQL error or data leak simulation
+    // Check if query contains any allowed XSS payload
+    const isAllowedXSS = allowedXSSPayloads.some(payload => 
+        query.includes(payload) || payload.toLowerCase().includes(query.toLowerCase())
+    )
+
+    if (isAllowedXSS) {
+        // VULNERABLE: Return HTML with unescaped XSS payload
         return res.status(200).send(`
 <!DOCTYPE html>
 <html>
-<head><title>SQL Error</title></head>
+<head><title>Search Results</title></head>
 <body>
-  <h1>Database Error</h1>
-  <div style="background: #ffe6e6; padding: 15px; border-left: 4px solid #ff0000; margin: 20px 0;">
-    <h3>SQL Syntax Error</h3>
-    <pre>
-Error in SQL query: SELECT * FROM courses WHERE name LIKE '%${query}%'
-
-You have an error in your SQL syntax near '${query}'
-
-Vulnerable Query: SELECT * FROM courses WHERE name LIKE '%${query}%'
-    </pre>
+  <h1>Search Results</h1>
+  <div class="search-result">
+    <p>You searched for:</p>
+    <div class="query">${query}</div>
   </div>
-  <h3>Database Leak (SQL Injection Successful):</h3>
-  <table border="1" style="border-collapse: collapse; width: 100%;">
-    <tr style="background: #f0f0f0;">
-      <th>ID</th><th>Username</th><th>Email</th><th>Role</th>
-    </tr>
-    <tr>
-      <td>1</td><td>admin</td><td>admin@ist.edu.bd</td><td>administrator</td>
-    </tr>
-    <tr>
-      <td>2</td><td>student</td><td>student@ist.edu.bd</td><td>user</td>
-    </tr>
-    <tr>
-      <td>3</td><td>teacher</td><td>teacher@ist.edu.bd</td><td>staff</td>
-    </tr>
-  </table>
-  <p><small>SQL Injection Detected! Query: ${query}</small></p>
 </body>
 </html>
     `)
     }
 
-    // Normal search result
+    // Normal search result (escaped)
+    const escapedQuery = query
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+
     return res.status(200).send(`
 <!DOCTYPE html>
 <html>
 <head><title>Search Results</title></head>
 <body>
   <h1>Search Results</h1>
-  <p>Searching for: <strong>${query}</strong></p>
+  <p>Searching for: <strong>${escapedQuery}</strong></p>
   <ul>
     <li>Computer Science - BSc Program</li>
     <li>Information Technology - MSc Program</li>
   </ul>
 </body>
 </html>
+    `)
+}
   `)
 }
