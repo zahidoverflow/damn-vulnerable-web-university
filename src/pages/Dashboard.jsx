@@ -107,13 +107,18 @@ function Dashboard() {
   // Student Dashboard
   return (
     <>
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h1>Welcome, {student.name}!</h1>
-            <p style={{ color: '#666' }}>{student.role} • {student.department}</p>
-          </div>
-          <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
+      <div className="card" style={{ position: 'relative' }}>
+        <button 
+          onClick={handleLogout} 
+          className="btn btn-secondary"
+          style={{ position: 'absolute', top: '1.5rem', right: '1.5rem' }}
+        >
+          Logout
+        </button>
+        
+        <div style={{ marginBottom: '2rem', paddingRight: '100px' }}>
+          <h1>Welcome, {student.name}!</h1>
+          <p style={{ color: '#666' }}>{student.role} • {student.department}</p>
         </div>
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
