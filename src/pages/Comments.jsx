@@ -1,37 +1,69 @@
-import { useSearchParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import './Comments.css'
 
 function Comments() {
-    const [searchParams, setSearchParams] = useSearchParams()
-    const reflectedComment = searchParams.get('comment') || ''
-
     // Stored XSS - comments from localStorage
     const [storedComments, setStoredComments] = useState([])
     const [newComment, setNewComment] = useState('')
     const [author, setAuthor] = useState('')
+    const [selectedPost, setSelectedPost] = useState(null)
+
+    // Sample blog posts
+    const blogPosts = [
+        {
+            id: 1,
+            title: 'Welcome to Fall Semester 2024!',
+            author: 'Dr. Mohammad Rahman',
+            date: 'December 5, 2024',
+            category: 'Announcement',
+            image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop',
+            excerpt: 'We are excited to welcome all students back to campus for an exciting new semester. This year brings many new opportunities and programs.',
+            content: 'We are excited to welcome all students back to campus for an exciting new semester. This year brings many new opportunities, including new research programs, updated facilities, and exciting academic partnerships. We encourage all students to take advantage of the resources available and make the most of their time at IST.'
+        },
+        {
+            id: 2,
+            title: 'New Computer Lab Opening Next Week',
+            author: 'IT Department',
+            date: 'December 3, 2024',
+            category: 'Facilities',
+            image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&h=400&fit=crop',
+            excerpt: 'State-of-the-art computer lab with 50 new workstations will be available for students starting Monday.',
+            content: 'We are proud to announce the opening of our new state-of-the-art computer lab located in Building C, Room 301. The lab features 50 high-performance workstations with the latest software for programming, design, and research. The lab will be open from 8 AM to 10 PM on weekdays.'
+        },
+        {
+            id: 3,
+            title: 'Annual Tech Fest Registration Open',
+            author: 'Student Affairs',
+            date: 'December 1, 2024',
+            category: 'Events',
+            image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=400&fit=crop',
+            excerpt: 'Join us for the biggest tech event of the year! Hackathons, workshops, and exciting prizes await.',
+            content: 'The Annual IST Tech Fest is back! This year features a 24-hour hackathon, workshops on AI and cybersecurity, guest speakers from top tech companies, and prizes worth over ৳500,000. Registration is now open for all students. Early bird registration ends December 15th.'
+        }
+    ]
 
     // Load stored comments on mount
     useEffect(() => {
-        const saved = localStorage.getItem('ist_comments')
+        const saved = localStorage.getItem('ist_blog_comments')
         if (saved) {
             try {
                 setStoredComments(JSON.parse(saved))
             } catch (e) {
-                localStorage.removeItem('ist_comments')
+                localStorage.removeItem('ist_blog_comments')
             }
         }
     }, [])
 
     // POST-based comment submission (Stored XSS)
-    const handleSubmit = (e) => {
+    const handleSubmit = (e, postId) => {
         e.preventDefault()
         if (!newComment.trim()) return
 
         const comment = {
             id: Date.now(),
+            postId: postId,
             text: newComment,
-            author: author || 'Anonymous',
+            author: author || 'Anonymous User',
             date: new Date().toISOString()
         }
 
@@ -39,7 +71,7 @@ function Comments() {
         setStoredComments(updated)
 
         // VULNERABLE: Store without sanitization
-        localStorage.setItem('ist_comments', JSON.stringify(updated))
+        localStorage.setItem('ist_blog_comments', JSON.stringify(updated))
 
         // Reset form
         setNewComment('')
@@ -49,208 +81,234 @@ function Comments() {
     const deleteComment = (id) => {
         const updated = storedComments.filter(c => c.id !== id)
         setStoredComments(updated)
-        localStorage.setItem('ist_comments', JSON.stringify(updated))
+        localStorage.setItem('ist_blog_comments', JSON.stringify(updated))
     }
 
-    const clearAll = () => {
-        setStoredComments([])
-        localStorage.removeItem('ist_comments')
+    const getCommentsForPost = (postId) => {
+        return storedComments.filter(c => c.postId === postId)
     }
 
     return (
-        <>
-            <div className="comments-hero">
-                <h1>💬 Comments Section</h1>
-                <p>Share your thoughts about IST</p>
+        <div style={{ background: '#f5f7fa', minHeight: '100vh' }}>
+            {/* Hero Section */}
+            <div style={{
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                padding: '4rem 2rem',
+                textAlign: 'center',
+                color: 'white'
+            }}>
+                <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📰 IST Blog & News</h1>
+                <p style={{ opacity: 0.8, fontSize: '1.1rem' }}>Stay updated with the latest from Institute of Science and Technology</p>
             </div>
 
-            <div className="container">
-                <div className="comments-content">
-
-                    {/* Reflected XSS Section (GET) */}
-                    <div className="xss-section">
-                        <h2>🔴 Reflected XSS (GET Parameter)</h2>
-
-                        <div className="method-badge get">Method: GET</div>
-
-                        <div className="comment-form-info">
-                            <p>Test reflected XSS via URL parameter:</p>
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault()
-                                    const formData = new FormData(e.target)
-                                    const comment = formData.get('comment')
-                                    if (comment) {
-                                        // Update URL param
-                                        setSearchParams({ comment })
-                                    }
-                                }}
-                                style={{ margin: '1rem 0', display: 'flex', gap: '0.5rem' }}
-                            >
-                                <input
-                                    name="comment"
-                                    type="text"
-                                    placeholder="<script>alert(1)</script>"
-                                    defaultValue={reflectedComment}
-                                    className="email-input"
-                                    style={{ flex: 1 }}
-                                />
-                                <button type="submit" className="btn btn-primary">Test</button>
-                            </form>
-                        </div>
-
-                        {reflectedComment && (
-                            <div className="comment-display">
-                                <h3>Reflected Comment:</h3>
-                                {/* VULNERABLE: Reflected XSS */}
-                                <div
-                                    className="comment-content"
-                                    dangerouslySetInnerHTML={{ __html: reflectedComment }}
-                                />
+            {/* Main Content */}
+            <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+                
+                {/* Blog Posts Grid */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                    gap: '2rem',
+                    marginBottom: '3rem'
+                }}>
+                    {blogPosts.map(post => (
+                        <article key={post.id} style={{
+                            background: 'white',
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            transition: 'transform 0.2s, box-shadow 0.2s'
+                        }}>
+                            {/* Post Image */}
+                            <div style={{
+                                height: '200px',
+                                background: `url(${post.image}) center/cover`,
+                                position: 'relative'
+                            }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '1rem',
+                                    left: '1rem',
+                                    background: '#e74c3c',
+                                    color: 'white',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '20px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600'
+                                }}>
+                                    {post.category}
+                                </span>
                             </div>
-                        )}
 
-                        {!reflectedComment && (
-                            <div className="comment-placeholder">
-                                <div className="placeholder-icon">💭</div>
-                                <p>Add <code>?comment=</code> parameter to URL</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Stored XSS Section (POST) */}
-                    <div className="xss-section stored">
-                        <h2>🔴 Stored XSS (POST Submission)</h2>
-
-                        <div className="method-badge post">Method: POST</div>
-
-                        <div className="stored-info">
-                            <p><strong>📌 More Dangerous:</strong> Stored XSS affects ALL users</p>
-                            <p>Comments are saved to localStorage and displayed to everyone</p>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="comment-post-form">
-                            <div className="form-row">
-                                <input
-                                    type="text"
-                                    value={author}
-                                    onChange={(e) => setAuthor(e.target.value)}
-                                    placeholder="Your name (optional)"
-                                    className="author-input"
-                                />
-                            </div>
-                            <div className="form-row">
-                                <textarea
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder="Write your comment..."
-                                    className="comment-textarea"
-                                    rows="4"
-                                />
-                            </div>
-                            <div className="form-actions">
-                                <button type="submit" className="btn btn-primary">
-                                    Post Comment
-                                </button>
-                                {storedComments.length > 0 && (
-                                    <button type="button" onClick={clearAll} className="btn btn-danger">
-                                        Clear All ({storedComments.length})
-                                    </button>
-                                )}
-                            </div>
-                        </form>
-
-                        {/* Display stored comments */}
-                        <div className="stored-comments">
-                            <h3>Stored Comments ({storedComments.length})</h3>
-
-                            {storedComments.length === 0 && (
-                                <p className="no-comments">No comments yet. Be the first to comment!</p>
-                            )}
-
-                            {storedComments.map(comment => (
-                                <div key={comment.id} className="stored-comment">
-                                    <div className="comment-header">
-                                        <strong>{comment.author}</strong>
-                                        <span className="comment-date">
-                                            {new Date(comment.date).toLocaleString()}
-                                        </span>
-                                    </div>
-                                    {/* VULNERABLE: Stored XSS - renders HTML without sanitization */}
-                                    <div
-                                        className="comment-body"
-                                        dangerouslySetInnerHTML={{ __html: comment.text }}
-                                    />
-                                    <button
-                                        onClick={() => deleteComment(comment.id)}
-                                        className="btn-delete"
-                                    >
-                                        Delete
-                                    </button>
+                            {/* Post Content */}
+                            <div style={{ padding: '1.5rem' }}>
+                                <h2 style={{ 
+                                    fontSize: '1.3rem', 
+                                    marginBottom: '0.75rem',
+                                    color: '#1a1a2e',
+                                    lineHeight: '1.4'
+                                }}>
+                                    {post.title}
+                                </h2>
+                                
+                                <div style={{ 
+                                    display: 'flex', 
+                                    gap: '1rem', 
+                                    fontSize: '0.85rem', 
+                                    color: '#666',
+                                    marginBottom: '1rem'
+                                }}>
+                                    <span>✍️ {post.author}</span>
+                                    <span>📅 {post.date}</span>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
 
-                    <div className="vuln-hint">
-                        ⚠️ <strong>XSS Vulnerabilities (Both Types):</strong>
-                        <br /><br />
-                        <strong>1. Reflected XSS (GET):</strong> URL parameter rendered without sanitization<br />
-                        <code>?comment=&lt;script&gt;alert(1)&lt;/script&gt;</code>
-                        <br /><br />
-                        <strong>2. Stored XSS (POST):</strong> Comments stored and displayed to all users<br />
-                        <code>Post: &lt;img src=x onerror=alert(document.cookie)&gt;</code>
-                    </div>
+                                <p style={{ 
+                                    color: '#555', 
+                                    lineHeight: '1.6',
+                                    marginBottom: '1.5rem'
+                                }}>
+                                    {post.excerpt}
+                                </p>
 
-                    <div className="sample-comments">
-                        <h3>Sample XSS Payloads (Click to Test)</h3>
-                        <div className="sample-grid">
-                            <div className="sample-column">
-                                <h4>Reflected (GET)</h4>
-                                <a href="/comments?comment=<script>alert('XSS')</script>">Script tag</a>
-                                <a href="/comments?comment=<img src=x onerror=alert(1)>">IMG onerror</a>
-                                <a href="/comments?comment=<svg onload=alert(1)>">SVG onload</a>
-                            </div>
-                            <div className="sample-column">
-                                <h4>Stored (POST)</h4>
-                                <button onClick={() => setNewComment('<script>alert("Stored XSS")</script>')}>
-                                    Script tag
-                                </button>
-                                <button onClick={() => setNewComment('<img src=x onerror=alert(document.cookie)>')}>
-                                    Cookie theft
-                                </button>
-                                <button onClick={() => setNewComment('<svg onload=alert("Persistent")>')}>
-                                    SVG persistent
+                                <button
+                                    onClick={() => setSelectedPost(selectedPost === post.id ? null : post.id)}
+                                    style={{
+                                        background: selectedPost === post.id ? '#c0392b' : '#e74c3c',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '0.75rem 1.5rem',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem'
+                                    }}
+                                >
+                                    💬 Comments ({getCommentsForPost(post.id).length})
                                 </button>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="attack-context">
-                        <h3>🎯 Attack Context: Why Test Comment Systems?</h3>
-                        <div className="context-content">
-                            <p><strong>Target:</strong> User-generated content (comments, reviews, profiles)</p>
-                            <p><strong>Thought Process:</strong></p>
-                            <ul>
-                                <li>Comments are common on university websites (announcements, forums)</li>
-                                <li>User input is often displayed without proper sanitization</li>
-                                <li>Stored XSS is more dangerous - affects all users viewing the page</li>
-                                <li>GET parameters allow social engineering via crafted URLs</li>
-                                <li>POST submissions are standard for form-based attacks</li>
-                            </ul>
-                            <p><strong>Business Impact:</strong></p>
-                            <ul className="business-impact">
-                                <li>💰 <strong>Financial:</strong> Account takeovers leading to fraudulent transactions</li>
-                                <li>📊 <strong>Data Breach:</strong> Theft of session cookies, credentials, PII</li>
-                                <li>⚖️ <strong>Legal:</strong> GDPR violations ($20M+ fines), lawsuits</li>
-                                <li>📉 <strong>Reputation:</strong> Loss of student/faculty trust, negative publicity</li>
-                                <li>🎓 <strong>Academic:</strong> Grade manipulation, transcript tampering</li>
-                            </ul>
-                        </div>
-                    </div>
+                            {/* Comments Section - Expandable */}
+                            {selectedPost === post.id && (
+                                <div style={{
+                                    borderTop: '1px solid #eee',
+                                    padding: '1.5rem',
+                                    background: '#fafafa'
+                                }}>
+                                    <h3 style={{ marginBottom: '1rem', color: '#333' }}>
+                                        💬 Comments
+                                    </h3>
+
+                                    {/* Comment Form */}
+                                    <form onSubmit={(e) => handleSubmit(e, post.id)} style={{ marginBottom: '1.5rem' }}>
+                                        <input
+                                            type="text"
+                                            value={author}
+                                            onChange={(e) => setAuthor(e.target.value)}
+                                            placeholder="Your name"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '8px',
+                                                marginBottom: '0.75rem',
+                                                fontSize: '0.95rem',
+                                                boxSizing: 'border-box'
+                                            }}
+                                        />
+                                        <textarea
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            placeholder="Write your comment..."
+                                            rows="3"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '8px',
+                                                marginBottom: '0.75rem',
+                                                fontSize: '0.95rem',
+                                                resize: 'vertical',
+                                                boxSizing: 'border-box'
+                                            }}
+                                        />
+                                        <button
+                                            type="submit"
+                                            style={{
+                                                background: '#3498db',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '0.75rem 1.5rem',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            Post Comment
+                                        </button>
+                                    </form>
+
+                                    {/* Display Comments */}
+                                    <div>
+                                        {getCommentsForPost(post.id).length === 0 ? (
+                                            <p style={{ color: '#888', fontStyle: 'italic' }}>
+                                                No comments yet. Be the first to comment!
+                                            </p>
+                                        ) : (
+                                            getCommentsForPost(post.id).map(comment => (
+                                                <div key={comment.id} style={{
+                                                    background: 'white',
+                                                    padding: '1rem',
+                                                    borderRadius: '8px',
+                                                    marginBottom: '0.75rem',
+                                                    border: '1px solid #eee'
+                                                }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        marginBottom: '0.5rem'
+                                                    }}>
+                                                        <div>
+                                                            <strong style={{ color: '#333' }}>{comment.author}</strong>
+                                                            <span style={{ 
+                                                                color: '#888', 
+                                                                fontSize: '0.8rem',
+                                                                marginLeft: '0.75rem'
+                                                            }}>
+                                                                {new Date(comment.date).toLocaleDateString()}
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => deleteComment(comment.id)}
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                color: '#999',
+                                                                cursor: 'pointer',
+                                                                fontSize: '0.8rem'
+                                                            }}
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </div>
+                                                    {/* VULNERABLE: Stored XSS - renders HTML without sanitization */}
+                                                    <div
+                                                        style={{ color: '#555', lineHeight: '1.5' }}
+                                                        dangerouslySetInnerHTML={{ __html: comment.text }}
+                                                    />
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </article>
+                    ))}
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 
