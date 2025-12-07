@@ -42,15 +42,47 @@ function Comments() {
         }
     ]
 
+    // Premade comments
+    const defaultComments = [
+        {
+            id: 1,
+            postId: 1,
+            text: 'admission shuru kobe theke???',
+            author: 'Rocky',
+            date: '2025-12-02T10:30:00.000Z'
+        },
+        {
+            id: 2,
+            postId: 1,
+            text: 'discount ki hobe kichu',
+            author: 'Tasin',
+            date: '2025-12-03T14:15:00.000Z'
+        },
+        {
+            id: 3,
+            postId: 2,
+            text: 'great! I was eagerly waiting for our new Lab',
+            author: 'Osman',
+            date: '2025-11-17T09:45:00.000Z'
+        }
+    ]
+
     // Load stored comments on mount
     useEffect(() => {
         const saved = localStorage.getItem('ist_blog_comments')
         if (saved) {
             try {
-                setStoredComments(JSON.parse(saved))
+                const parsed = JSON.parse(saved)
+                // Merge default comments with saved ones (avoid duplicates)
+                const defaultIds = defaultComments.map(c => c.id)
+                const userComments = parsed.filter(c => !defaultIds.includes(c.id))
+                setStoredComments([...defaultComments, ...userComments])
             } catch (e) {
                 localStorage.removeItem('ist_blog_comments')
+                setStoredComments(defaultComments)
             }
+        } else {
+            setStoredComments(defaultComments)
         }
     }, [])
 
