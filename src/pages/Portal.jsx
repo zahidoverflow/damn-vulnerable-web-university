@@ -6,6 +6,7 @@ function Portal() {
   const [studentId, setStudentId] = useState(searchParams.get('username') || '')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   // Initialize from URL
@@ -16,31 +17,69 @@ function Portal() {
     }
   }, [searchParams])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setLoading(true)
 
     // Update URL on submit
     setSearchParams({ username: studentId })
 
-    // VULNERABLE: Simulating SQL injection vulnerability
-    // In a real backend, this would be: SELECT * FROM students WHERE student_id = '${studentId}' AND password = '${password}'
+    try {
+      // Call backend API instead of client-side validation
+      const response = await fetch('/api/portal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: studentId,
+          password: password
+        })
+      })
 
-    if (studentId === "' OR '1'='1' --" ||
-      password === "' OR '1'='1' --" ||
-      (studentId === 'IST2021001' && password === 'password123') ||
-      (studentId === 'IST2020000' && password === 'admin123')) {
+      const html = await response.text()
 
-      const studentData = {
-        name: studentId.includes("'") ? 'SQL Injection User' : 'John Doe',
-        student_id: studentId.includes("'") ? 'BYPASSED' : studentId,
-        email: 'john.doe@ist.edu',
-        department: 'Computer Science'
+      // Check for SQLi success indicators
+      const isSQLiSuccess = html.includes('Authentication Bypass Successful') ||
+                            html.includes('SQL Injection Detected')
+
+      // Check for valid login (normal credentials)
+      const isValidLogin = html.includes('Welcome') && !html.includes('Failed')
+
+      if (isSQLiSuccess) {
+        // SQLi detected - extract user data or use defaults
+        const studentData = {
+          name: 'SQL Injection User',
+          student_id: 'BYPASSED',
+          email: 'admin@ist.edu.bd',
+          department: 'Security Testing',
+          role: 'Administrator (via SQLi)'
+        }
+
+        localStorage.setItem('student', JSON.stringify(studentData))
+        navigate('/dashboard')
+      } else if (response.status === 200 && !html.includes('Login Failed')) {
+        // Valid credentials
+        const studentData = {
+          name: 'John Doe',
+          student_id: studentId,
+          email: 'john.doe@ist.edu',
+          department: 'Computer Science',
+          role: 'Student'
+        }
+
+        localStorage.setItem('student', JSON.stringify(studentData))
+        navigate('/dashboard')
+      } else {
+        // Login failed
+        setError('Invalid credentials')
       }
-
-      localStorage.setItem('student', JSON.stringify(studentData))
-      navigate('/dashboard')
-    } else {
-      setError('Invalid credentials')
+    } catch (err) {
+      setError('Network error. Please try again.')
+      console.error('Login error:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -76,7 +115,9 @@ function Portal() {
           />
         </div>
 
-        <button type="submit" className="btn" style={{ width: '100%' }}>Login</button>
+        <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
 
       <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #ddd', textAlign: 'center' }}>
