@@ -10,42 +10,27 @@ function Redirect() {
     const [redirecting, setRedirecting] = useState(false)
     const [blocked, setBlocked] = useState(false)
 
-    // Allowed domains for "safe" redirects
-    const allowedDomains = [
-        'ist-edu-bd.vercel.app',
-        'ist.edu.bd',
-        'localhost'
-    ]
-
-    // Vulnerable payloads that bypass the filter
-    const bypassPayloads = [
+    // HARD WHITELIST - Only these exact URLs are allowed
+    const allowedUrls = [
+        // Recommended Resources
+        'https://scholar.google.com',
+        'https://ieeexplore.ieee.org',
+        'https://education.github.com',
+        'https://www.coursera.org',
+        'https://stackoverflow.com',
+        'https://www.w3schools.com',
+        'https://leetcode.com',
+        'https://developer.mozilla.org',
+        // Bypass payloads (for testing purposes)
         '//https:///google.com/%2e%2e',
         'http:/ⓖ𝑜𝗼𝕘𝕝𝑒.𝑐𝑜𝓂',
         '$2f%2fgoogle.com'
     ]
 
-    // Check if URL is "allowed" (but bypasses work!)
+    // Check if URL is in the whitelist (exact match only)
     const isAllowedRedirect = (targetUrl) => {
         if (!targetUrl) return false
-        
-        // Check for bypass payloads (these slip through!)
-        for (const payload of bypassPayloads) {
-            if (targetUrl.includes(payload) || decodeURIComponent(targetUrl).includes(payload)) {
-                return true // VULNERABLE: Bypass detected but allowed!
-            }
-        }
-        
-        // Normal domain validation
-        try {
-            const parsed = new URL(targetUrl, window.location.origin)
-            return allowedDomains.some(domain => parsed.hostname.includes(domain))
-        } catch {
-            // If URL parsing fails, check for bypass patterns
-            if (targetUrl.startsWith('//') || targetUrl.includes('%2f') || targetUrl.includes('$')) {
-                return true // VULNERABLE: Malformed URLs bypass validation
-            }
-            return false
-        }
+        return allowedUrls.includes(targetUrl)
     }
 
     useEffect(() => {
