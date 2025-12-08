@@ -8,6 +8,7 @@ function Search() {
   const [results, setResults] = useState([])
   const [error, setError] = useState('')
   const [xssTriggered, setXssTriggered] = useState(false)
+  const [storedXSS, setStoredXSS] = useState('')
 
   const allCourses = [
     { id: 1, code: 'CS101', name: 'Introduction to Programming', instructor: 'Dr. Robert Brown', credits: 3 },
@@ -21,7 +22,9 @@ function Search() {
   const validXSSPayloads = [
     `<script>'alert(1)'.replace(/.+/,eval)</script>`,
     `<object data=javascript:alert(1)>`,
-    `<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?`
+    `<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?`,
+    `<img src=x onerror=alert('XSS')>`,
+    `<svg onload=alert('Stored XSS!')>`
   ]
 
   // Check if query contains a valid XSS payload
@@ -31,6 +34,14 @@ function Search() {
       searchQuery.toLowerCase().includes(payload.toLowerCase())
     )
   }
+
+  // Load stored XSS on mount (persists across page reloads)
+  useEffect(() => {
+    const saved = localStorage.getItem('ist_search_history')
+    if (saved && isValidXSS(saved)) {
+      setStoredXSS(saved)
+    }
+  }, [])
 
   // Update results when URL param changes
   useEffect(() => {
@@ -49,6 +60,9 @@ function Search() {
     if (isValidXSS(searchQuery)) {
       setXssTriggered(true)
       setResults([])
+      // VULNERABLE: Store the XSS payload - persists across reloads!
+      localStorage.setItem('ist_search_history', searchQuery)
+      setStoredXSS(searchQuery)
       return
     }
 
@@ -68,6 +82,11 @@ function Search() {
   const handleSearch = (e) => {
     e.preventDefault()
     setSearchParams({ q: query })
+  }
+
+  const clearStoredXSS = () => {
+    localStorage.removeItem('ist_search_history')
+    setStoredXSS('')
   }
 
   return (
@@ -134,6 +153,26 @@ function Search() {
           </div>
         )}
       </div>
+
+      {/* STORED XSS - Shows on every page load! */}
+      {storedXSS && (
+        <div className="card" style={{ maxWidth: '1200px', margin: '2rem auto', background: '#fff5f5', border: '2px solid #e74c3c' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ color: '#e74c3c', margin: 0 }}>📜 Recent Search History</h3>
+            <button 
+              onClick={clearStoredXSS}
+              style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+            >
+              Clear History
+            </button>
+          </div>
+          {/* VULNERABLE: Stored XSS - Executes on every page load! */}
+          <div 
+            style={{ padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #ddd' }}
+            dangerouslySetInnerHTML={{ __html: storedXSS }} 
+          />
+        </div>
+      )}
 
       {results.length > 0 && (
         <div className="card" style={{ maxWidth: '1200px', margin: '2rem auto' }}>
