@@ -6,7 +6,8 @@ function Search() {
   const initialQuery = searchParams.get('q') || ''
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState([])
-  const [xssResult, setXssResult] = useState('')
+  const [error, setError] = useState('')
+  const [xssTriggered, setXssTriggered] = useState(false)
 
   const allCourses = [
     { id: 1, code: 'CS101', name: 'Introduction to Programming', instructor: 'Dr. Robert Brown', credits: 3 },
@@ -16,12 +17,20 @@ function Search() {
     { id: 5, code: 'IT202', name: 'Database Management Systems', instructor: 'Dr. James Wilson', credits: 3 }
   ]
 
-  // Allowed XSS payloads (only these 3 will work)
-  const allowedXSSPayloads = [
-    "<script>'alert(1)'.replace(/.+/,eval)</script>",
-    "<object data=javascript:alert(1)>",
-    "<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?"
+  // Specific XSS payloads that should work
+  const validXSSPayloads = [
+    `<script>'alert(1)'.replace(/.+/,eval)</script>`,
+    `<object data=javascript:alert(1)>`,
+    `<ScRipT 5-0*3+9/3=>prompt(1)</ScRipT giveanswerhere=?`
   ]
+
+  // Check if query contains a valid XSS payload
+  const isValidXSS = (searchQuery) => {
+    return validXSSPayloads.some(payload => 
+      searchQuery.includes(payload) || 
+      searchQuery.toLowerCase().includes(payload.toLowerCase())
+    )
+  }
 
   // Update results when URL param changes
   useEffect(() => {
@@ -33,19 +42,21 @@ function Search() {
   }, [searchParams])
 
   const performSearch = (searchQuery) => {
-    setXssResult('')
+    setError('')
+    setXssTriggered(false)
 
-    // Check if it's one of the allowed XSS payloads
-    const isAllowedXSS = allowedXSSPayloads.some(payload => 
-      searchQuery.includes(payload) || payload.includes(searchQuery)
-    )
+    // Check for valid XSS payloads first
+    if (isValidXSS(searchQuery)) {
+      setXssTriggered(true)
+      setResults([])
+      return
+    }
 
-    if (isAllowedXSS) {
-      // VULNERABLE: Render the XSS payload
-      setXssResult(searchQuery)
+    // VULNERABLE: Simulating SQL injection in search
+    if (searchQuery.includes("'") || searchQuery.includes("UNION") || searchQuery.includes("--")) {
+      setError(`Database Error: Syntax error near '${searchQuery}'. This might indicate a SQL injection attempt!`)
       setResults([])
     } else {
-      // Normal search - filter courses
       const filtered = allCourses.filter(course =>
         course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.code.toLowerCase().includes(searchQuery.toLowerCase())
@@ -61,8 +72,8 @@ function Search() {
 
   return (
     <>
-      <div className="card">
-        <h1>Search Courses</h1>
+      <div className="card" style={{ maxWidth: '1200px', margin: '2rem auto' }}>
+        <h1 style={{ color: '#667eea', marginBottom: '1.5rem' }}>🔍 Search Courses</h1>
 
         <form onSubmit={handleSearch}>
           <div className="form-group">
@@ -76,24 +87,56 @@ function Search() {
                 width: '100%',
                 maxWidth: '800px',
                 padding: '1rem 1.25rem',
-                boxSizing: 'border-box'
+                borderRadius: '8px',
+                border: '2px solid #e0e0e0',
+                transition: 'border-color 0.2s'
               }}
             />
           </div>
-          <button type="submit" className="btn">Search</button>
+          <button type="submit" className="btn" style={{
+            background: '#667eea',
+            padding: '1rem 2rem',
+            fontSize: '1rem',
+            borderRadius: '8px',
+            marginTop: '1rem'
+          }}>Search</button>
         </form>
 
-        {/* VULNERABLE: XSS output - renders HTML without sanitization */}
-        {xssResult && (
-          <div 
-            style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}
-            dangerouslySetInnerHTML={{ __html: `<p>Search results for: ${xssResult}</p>` }}
-          />
+        {error && (
+          <div className="error" style={{ marginTop: '1rem' }}>
+            <strong>Database Error:</strong> {error}
+            <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>This might indicate a SQL injection attempt!</p>
+          </div>
+        )}
+
+        {/* XSS Vulnerable Output - Only renders for valid payloads */}
+        {xssTriggered && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <div style={{ 
+              background: '#fff3cd', 
+              padding: '1rem', 
+              borderRadius: '8px',
+              border: '1px solid #ffc107',
+              marginBottom: '1rem'
+            }}>
+              <strong>🔍 Search Results for:</strong>
+            </div>
+            {/* VULNERABLE: Renders HTML without sanitization for valid XSS payloads */}
+            <div 
+              style={{ 
+                padding: '1rem', 
+                background: '#f8f9fa', 
+                borderRadius: '8px',
+                border: '1px solid #dee2e6'
+              }}
+              dangerouslySetInnerHTML={{ __html: query }} 
+            />
+          </div>
         )}
       </div>
 
       {results.length > 0 && (
-        <div className="card">
+        <div className="card" style={{ maxWidth: '1200px', margin: '2rem auto' }}>
           <h2>Search Results ({results.length})</h2>
 
           {results.map(course => (
@@ -106,8 +149,8 @@ function Search() {
         </div>
       )}
 
-      {query && results.length === 0 && !xssResult && (
-        <div className="card">
+      {query && results.length === 0 && !error && !xssTriggered && (
+        <div className="card" style={{ maxWidth: '1200px', margin: '2rem auto' }}>
           <p>No results found for "{query}"</p>
         </div>
       )}
