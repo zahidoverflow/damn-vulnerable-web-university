@@ -13,6 +13,7 @@ export default function handler(req, res) {
     const { url } = req.query
 
     // HARD WHITELIST - Only these exact URLs are allowed
+    // Note: URL params may be auto-decoded, so we include both encoded and decoded versions
     const allowedUrls = [
         // Recommended Resources
         'https://scholar.google.com',
@@ -23,10 +24,15 @@ export default function handler(req, res) {
         'https://www.w3schools.com',
         'https://leetcode.com',
         'https://developer.mozilla.org',
-        // Bypass payloads (for testing purposes)
+        // Vulnerable payloads (for testing purposes) - ONLY these 3 bypass
+        // Payload 1: encoded and decoded versions
         '//https:///google.com/%2e%2e',
+        '//https:///google.com/..',
+        // Payload 2: Unicode homograph
         'http:/ⓖ𝑜𝗼𝕘𝕝𝑒.𝑐𝑜𝓂',
-        '$2f%2fgoogle.com'
+        // Payload 3: encoded and decoded versions  
+        '$2f%2fgoogle.com',
+        '$2f/google.com'
     ]
 
     if (!url) {
@@ -44,10 +50,25 @@ export default function handler(req, res) {
     }
 
     // Check if URL is in the whitelist (exact match only)
-    const isAllowed = allowedUrls.includes(url)
+    // Also check URL-decoded version for encoded payloads
+    let decodedUrl
+    try {
+        decodedUrl = decodeURIComponent(url)
+    } catch (e) {
+        decodedUrl = url
+    }
+    
+    const isAllowed = allowedUrls.includes(url) || allowedUrls.includes(decodedUrl)
     
     if (isAllowed) {
-        res.setHeader('Location', url)
+        // VULNERABLE: Allow redirect for whitelisted URLs (including the 3 payloads)
+        // Try to set Location header, but handle invalid characters gracefully
+        try {
+            res.setHeader('Location', url)
+        } catch (e) {
+            // Unicode characters can't be in Location header - use encoded version
+            res.setHeader('Location', encodeURI(url))
+        }
         return res.status(302).send(`
 <!DOCTYPE html>
 <html>
@@ -55,22 +76,20 @@ export default function handler(req, res) {
   <meta http-equiv="refresh" content="0;url=${url}">
 </head>
 <body>
-  <p>Redirecting to: ${url}</p>
+  <p>Redirecting...</p>
 </body>
 </html>
         `)
     }
     
-    // Block unauthorized redirects
+    // Block unauthorized redirects - DO NOT echo back the URL or set Location header
     return res.status(403).send(`
 <!DOCTYPE html>
 <html>
-<head><title>Redirect Blocked</title></head>
+<head><title>Blocked</title></head>
 <body>
-  <h1>🚫 Redirect Blocked</h1>
-  <p>This URL is not in the approved whitelist.</p>
-  <p><strong>Requested URL:</strong> ${url}</p>
-  <p>Only redirects to approved IST domains are permitted.</p>
+  <h1>Access Denied</h1>
+  <p>This redirect is not permitted.</p>
 </body>
 </html>
     `)
