@@ -87,69 +87,6 @@ function Redirect() {
                 </div>
 
                 <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-                    
-                    {/* Quick Redirect Tool */}
-                    <div style={{
-                        background: 'white',
-                        borderRadius: '16px',
-                        padding: '2rem',
-                        marginBottom: '2rem',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-                    }}>
-                        <h2 style={{ color: '#1a1a2e', marginBottom: '1rem' }}>🚀 Quick Redirect</h2>
-                        <p style={{ color: '#666', marginBottom: '1rem' }}>
-                            Enter a URL to redirect (only IST approved domains allowed)
-                        </p>
-                        
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault()
-                                const formData = new FormData(e.target)
-                                const targetUrl = formData.get('url')
-                                if (targetUrl) {
-                                    window.location.href = `/redirect?url=${encodeURIComponent(targetUrl)}`
-                                }
-                            }}
-                            style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}
-                        >
-                            <input
-                                name="url"
-                                type="text"
-                                placeholder="https://example.com"
-                                style={{
-                                    flex: 1,
-                                    minWidth: '300px',
-                                    padding: '1rem 1.25rem',
-                                    border: '2px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    fontSize: '1rem'
-                                }}
-                            />
-                            <button type="submit" style={{
-                                background: '#3498db',
-                                color: 'white',
-                                border: 'none',
-                                padding: '1rem 2rem',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '1rem'
-                            }}>
-                                Redirect →
-                            </button>
-                        </form>
-                        
-                        <p style={{ 
-                            color: '#888', 
-                            fontSize: '0.85rem', 
-                            marginTop: '1rem',
-                            background: '#f8f9fa',
-                            padding: '0.75rem',
-                            borderRadius: '6px'
-                        }}>
-                            ℹ️ For security, redirects are only allowed to approved IST domains.
-                        </p>
-                    </div>
 
                     {/* Useful Links Grid */}
                     <h2 style={{ color: '#1a1a2e', marginBottom: '1.5rem' }}>📌 Recommended Resources</h2>
